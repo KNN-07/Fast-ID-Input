@@ -686,10 +686,11 @@ Be precise and only extract information that is clearly labeled. If you see barc
         const ctx = this.canvas.getContext('2d');
         ctx.drawImage(this.video, 0, 0);
 
+        const self = this;
         this.canvas.toBlob(async (blob) => {
             const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
-            this.closeCamera();
-            await this.handleFiles([file]);
+            self.closeCamera();
+            await self.handleFiles([file]);
         }, 'image/jpeg', 0.95);
     }
 
