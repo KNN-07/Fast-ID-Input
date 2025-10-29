@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Scanner - MAC, S/N, BLE MAC Batch Scanner</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📱 ID Scanner</h1>
+            <p>Batch scan MAC, S/N, BLE MAC, and Device Location ID from images</p>
+        </header>
+
+        <!-- Settings Section -->
+        <div class="settings-section">
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h3>⚙️ Settings</h3>
+                    <button class="btn-toggle" id="settingsToggle">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div class="settings-content" id="settingsContent">
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <span>Processing Engine</span>
+                            <select id="engineSelect" class="setting-select">
+                                <option value="tesseract">Tesseract OCR (Free)</option>
+                                <option value="gemini">Gemini Vision (API Key Required)</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="setting-item" id="geminiSettings" style="display: none;">
+                        <label class="setting-label">
+                            <span>Gemini API Key</span>
+                            <input type="password" id="geminiApiKey" class="setting-input" placeholder="Enter your Gemini API key">
+                        </label>
+                        <p class="setting-hint">
+                            Get your free API key from <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a>
+                        </p>
+                        <button class="btn btn-small btn-primary" id="saveApiKey">Save API Key</button>
+                        <button class="btn btn-small btn-secondary" id="testApiKey" style="display: none;">Test API</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p class="upload-text">Drop images here or click to upload</p>
+                <p class="upload-hint">Supports: JPG, PNG, JPEG | Multiple files allowed</p>
+                <input type="file" id="fileInput" accept="image/*" multiple hidden>
+            </div>
+
+            <div class="camera-section">
+                <button class="btn btn-camera" id="cameraBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    Use Camera
+                </button>
+            </div>
+        </div>
+
+        <!-- Folder Upload Section (Desktop Only) -->
+        <div id="folderSection" class="folder-section" style="display: none;">
+            <div class="folder-area">
+                <svg class="folder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <h3>Batch Process Entire Folder</h3>
+                <p class="folder-hint">Select a folder to scan all images at once (Desktop only)</p>
+                <input type="file" id="folderInput" webkitdirectory directory multiple hidden>
+                <button class="btn btn-primary btn-folder" id="folderBtn">
+                    📁 Select Folder
+                </button>
+            </div>
+        </div>
+
+        <!-- Camera Modal -->
+        <div id="cameraModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Capture Image</h2>
+                    <button class="close-btn" id="closeCamera">&times;</button>
+                </div>
+                <div class="camera-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+                <div class="camera-controls">
+                    <button class="btn btn-primary" id="captureBtn">📸 Capture</button>
+                    <button class="btn btn-secondary" id="switchCameraBtn">🔄 Switch Camera</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="progressSection" class="progress-section" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">Processing images...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <div class="results-header">
+                <h2>Scan Results (<span id="resultCount">0</span>)</h2>
+                <div class="results-actions">
+                    <button class="btn btn-small btn-secondary" id="clearBtn">Clear All</button>
+                    <button class="btn btn-small btn-primary" id="exportCsvBtn">Export CSV</button>
+                    <button class="btn btn-small btn-primary" id="exportJsonBtn">Export JSON</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <input type="text" id="searchInput" placeholder="Search results..." class="search-input">
+            </div>
+
+            <div class="results-grid" id="resultsGrid"></div>
+        </div>
+
+        <!-- Statistics -->
+        <div id="statsSection" class="stats-section" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="totalScanned">0</div>
+                <div class="stat-label">Images Scanned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalMAC">0</div>
+                <div class="stat-label">MAC Addresses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalSN">0</div>
+                <div class="stat-label">Serial Numbers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalBLE">0</div>
+                <div class="stat-label">BLE MAC</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalDeviceLoc">0</div>
+                <div class="stat-label">Device Loc IDs</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
