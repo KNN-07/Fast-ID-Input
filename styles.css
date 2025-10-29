@@ -404,6 +404,30 @@ header p {
     justify-content: center;
 }
 
+/* Image Viewer Modal */
+.image-viewer-content {
+    max-width: 95vw;
+    max-height: 95vh;
+}
+
+.image-viewer-container {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+    border-radius: 0 0 12px 12px;
+    min-height: 400px;
+}
+
+#viewerImage {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
 /* Progress */
 .progress-section {
     background: var(--surface);

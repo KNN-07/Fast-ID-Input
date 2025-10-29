@@ -65,6 +65,12 @@ class IDScanner {
         this.folderSection = document.getElementById('folderSection');
         this.folderInput = document.getElementById('folderInput');
         this.folderBtn = document.getElementById('folderBtn');
+        
+        // Image viewer elements
+        this.imageViewerModal = document.getElementById('imageViewerModal');
+        this.viewerImage = document.getElementById('viewerImage');
+        this.imageViewerTitle = document.getElementById('imageViewerTitle');
+        this.closeImageViewer = document.getElementById('closeImageViewer');
     }
 
     initEventListeners() {
@@ -107,6 +113,14 @@ class IDScanner {
         this.closeCamera.addEventListener('click', () => this.closeCameraModal());
         this.captureBtn.addEventListener('click', () => this.capturePhoto());
         this.switchCameraBtn.addEventListener('click', () => this.switchCamera());
+
+        // Image viewer events
+        this.closeImageViewer.addEventListener('click', () => this.closeImageViewerModal());
+        this.imageViewerModal.addEventListener('click', (e) => {
+            if (e.target === this.imageViewerModal) {
+                this.closeImageViewerModal();
+            }
+        });
 
         // Results events
         this.clearBtn.addEventListener('click', () => this.clearResults());
@@ -564,7 +578,7 @@ Be precise and only extract information that is clearly labeled. If you see barc
         card.dataset.index = index;
 
         const imageHtml = result.image ? 
-            `<img src="${result.image}" alt="${result.filename}" class="result-image" onclick="window.open('${result.image}', '_blank')">` : '';
+            `<img src="${result.image}" alt="${result.filename}" class="result-image" onclick="idScanner.openImageInNewTab(${index})">` : '';
 
         const engineBadge = result.engine === 'gemini' ? 
             '<span style="background: #4285f4; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">Gemini</span>' : 
@@ -694,6 +708,21 @@ Be precise and only extract information that is clearly labeled. If you see barc
     }
 
     // Utility functions
+    openImageInNewTab(index) {
+        const result = this.results[index];
+        if (!result || !result.image) return;
+
+        // Show image in modal popup
+        this.viewerImage.src = result.image;
+        this.imageViewerTitle.textContent = result.filename;
+        this.imageViewerModal.classList.add('active');
+    }
+
+    closeImageViewerModal() {
+        this.imageViewerModal.classList.remove('active');
+        this.viewerImage.src = '';
+    }
+
     copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => {
             // Could add a toast notification here
