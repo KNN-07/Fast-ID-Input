@@ -104,7 +104,7 @@ class IDScanner {
 
         // Camera events
         this.cameraBtn.addEventListener('click', () => this.openCamera());
-        this.closeCamera.addEventListener('click', () => this.closeCamera());
+        this.closeCamera.addEventListener('click', () => this.closeCameraModal());
         this.captureBtn.addEventListener('click', () => this.capturePhoto());
         this.switchCameraBtn.addEventListener('click', () => this.switchCamera());
 
@@ -668,7 +668,7 @@ Be precise and only extract information that is clearly labeled. If you see barc
         await this.startCamera();
     }
 
-    closeCamera() {
+    closeCameraModal() {
         this.stopCamera();
         this.cameraModal.classList.remove('active');
     }
@@ -686,11 +686,10 @@ Be precise and only extract information that is clearly labeled. If you see barc
         const ctx = this.canvas.getContext('2d');
         ctx.drawImage(this.video, 0, 0);
 
-        const self = this;
         this.canvas.toBlob(async (blob) => {
             const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
-            self.closeCamera();
-            await self.handleFiles([file]);
+            this.closeCameraModal();
+            await this.handleFiles([file]);
         }, 'image/jpeg', 0.95);
     }
 
