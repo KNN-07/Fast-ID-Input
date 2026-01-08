@@ -401,7 +401,7 @@ Device Loc ID: [the device location ID or "Not found"]
 Be precise and only extract information that is clearly labeled. If you see barcodes, also try to read the text near them.`;
 
             const response = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.geminiApiKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=${this.geminiApiKey}`,
                 {
                     method: 'POST',
                     headers: {
